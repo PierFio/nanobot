@@ -56,9 +56,34 @@ class AgentDefaults(BaseModel):
     max_tool_iterations: int = 20
 
 
+class PPOConfig(BaseModel):
+    """PPO controller configuration for reflection."""
+    hidden_size: int = 64
+    learning_rate: float = 3e-4
+    gamma: float = 0.99
+    clip_epsilon: float = 0.2
+    entropy_coeff: float = 0.01
+    model_path: str = "~/.nanobot/models/ppo_reflection.pt"
+
+
+class ReflectionConfig(BaseModel):
+    """Multi-loop reflection configuration."""
+    enabled: bool = True
+    num_loops: int = 5
+    max_rounds: int = 10
+    max_tool_iterations_per_loop: int = 5
+    judge_model: str | None = None
+    early_stop_score: float = 0.95
+    loop_model: str | None = None  # Local model for loops (e.g. "mistral/mistral-large", "kimi/moonshot-v1")
+    loop_api_base: str | None = None  # API base for local loop model
+    loop_api_key: str | None = None  # API key for local loop model provider
+    ppo: PPOConfig = Field(default_factory=PPOConfig)
+
+
 class AgentsConfig(BaseModel):
     """Agent configuration."""
     defaults: AgentDefaults = Field(default_factory=AgentDefaults)
+    reflection: ReflectionConfig = Field(default_factory=ReflectionConfig)
 
 
 class ProviderConfig(BaseModel):
